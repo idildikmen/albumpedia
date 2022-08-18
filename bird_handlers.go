@@ -16,6 +16,8 @@ var albums []Album
 
 func getAlbumHandler(w http.ResponseWriter, r *http.Request) {
 	//Convert the "birds" variable to json
+	albums, err := store.GetAlbums()
+
 	albumListBytes, err := json.Marshal(albums)
 
 	// If there is an error, print it to the console, and return a server
@@ -51,9 +53,13 @@ func createAlbumHandler(w http.ResponseWriter, r *http.Request) {
 	album.Price = r.Form.Get("price")
 
 	// Append our existing list of birds with a new entry
-	albums = append(albums, album)
+	err = store.CreateAlbum(&album)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	//Finally, we redirect the user to the original HTMl page
 	// (located at `/assets/`), using the http libraries `Redirect` method
 	http.Redirect(w, r, "/assets/", http.StatusFound)
+
 }

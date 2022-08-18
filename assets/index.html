@@ -2,7 +2,10 @@
 <html lang="en">
 
 <head>
- <title>The albums encyclopedia</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>The albums encyclopedia</title>
 </head>
 
 <body>
@@ -29,13 +32,15 @@
     `POST /bird` API that we will build in the next section
    -->
   <form action="/album" method="post">
-    Title:
+    <label for="title">Title:</label>
     <input type="text" name="title">
-    <br/> Artist:
-    <input type="text" name="artist">
-    <br/> Price:
+    <br />
+    <label for="artist">Artist:</label>
+    <input type="text" id= "2" name="artist">
+    <br />
+    <label for="price">Price:</label>
     <input type="text" name="price">
-    <br/>
+    <br />
     <input type="submit" value="Submit">
   </form>
 
@@ -46,7 +51,7 @@
    -->
   <script>
     albumTable = document.querySelector("table")
-
+    console.log("working??")
     /*
     Use the browsers `fetch` API to make a GET call to /bird
     We expect the response to be a JSON list of birds, of the
@@ -56,22 +61,31 @@
       {"species":"...","description":"..."}
     ]
     */
+
+   
     fetch("/album")
       .then(response => response.json())
       .then(albumList => {
         //Once we fetch the list, we iterate over it
+
+        console.log(albumList)
+        artist = document.getElementById("2")
+        console.log(artist)
         albumList.forEach(album => {
           // Create the table row
           row = document.createElement("tr")
-
+          console.log("Hello")
           // Create the table data elements for the species and
 					// description columns
           title = document.createElement("td")
           title.innerHTML = album.title
+          console.log(title)
           artist = document.createElement("td")
           artist.innerHTML = album.artist
+          console.log(artist)
           price = document.createElement("td")
           price.innerHTML = album.price
+          console.log(price)
 
 
           // Add the data elements to the row

@@ -1,8 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+
+	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/gorilla/mux"
 )
@@ -36,10 +41,46 @@ func newRouter() *mux.Router {
 func main() {
 	// The router is now formed by calling the `newRouter` constructor function
 	// that we defined above. The rest of the code stays the same
+	log.Println("Creating sqlite-database.db...")
+	file, err := os.Create("sqlite-database-alb.db")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	file.Close()
+	log.Println("sqlite-database.db created")
+
+	sqliteDatabase, _ := sql.Open("sqlite3", "./sqlite-database-alb.db")
+	defer sqliteDatabase.Close() // Defer Closing the database
+	createTable(sqliteDatabase)
+
+	InitStore(&dbStore{db: sqliteDatabase})
+
 	r := newRouter()
+	log.Println("comes here")
+	fmt.Println("Serving on port 8080")
 	http.ListenAndServe(":8080", r)
+}
+
+func createTable(db *sql.DB) {
+	createAlbumsTableSQL := `CREATE TABLE albums (
+		"idAlbum" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+		"title" TEXT,
+		"artist" TEXT,
+		"price" TEXT
+	  );` // SQL Statement for Create Table
+
+	log.Println("Create album table...")
+	statement, err := db.Prepare(createAlbumsTableSQL) // Prepare SQL Statement
+	log.Println("now")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	statement.Exec() // Execute SQL Statements
+	log.Println("album table created")
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hey it's Idil!")
+
 }
