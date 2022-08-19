@@ -2,7 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -38,9 +40,43 @@ func newRouter() *mux.Router {
 	return r
 }
 
+// Users struct which contains
+// an array of users
+type Albums struct {
+	Albums []album `json:"albums"`
+}
+
+// User struct which contains a name
+// a type and a list of social links
+//album represents data about a record album
+type album struct {
+	Class  string `json:"_class"`
+	Artist string `json:"artist"`
+	Title  string `json:"title"`
+	Year   string `json:"releaseYear"`
+	Genre  string `json:"genre"`
+}
+
 func main() {
 	// The router is now formed by calling the `newRouter` constructor function
 	// that we defined above. The rest of the code stays the same
+
+	jsonFile, err := os.Open("albums.json")
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Successfully Opened albums.json")
+	// defer the closing of our jsonFile so that we can parse it later on
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var albums Albums
+
+	json.Unmarshal(byteValue, &albums)
+	fmt.Println("First album title is:", albums.Albums[0].Title)
+
 	log.Println("Creating sqlite-database.db...")
 	file, err := os.Create("sqlite-database-alb.db")
 	if err != nil {
@@ -52,6 +88,13 @@ func main() {
 	sqliteDatabase, _ := sql.Open("sqlite3", "./sqlite-database-alb.db")
 	defer sqliteDatabase.Close() // Defer Closing the database
 	createTable(sqliteDatabase)
+
+	for i := 0; i < len(albums.Albums); i++ {
+		album := albums.Albums[i]
+		_, err1 := sqliteDatabase.Exec("INSERT INTO albums(title, artist, class, genre, year) VALUES ($1,$2,$3,$4,$5)", album.Title, album.Artist,
+			album.Class, album.Genre, album.Year)
+		_ = err1
+	}
 
 	InitStore(&dbStore{db: sqliteDatabase})
 
@@ -66,7 +109,10 @@ func createTable(db *sql.DB) {
 		"idAlbum" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
 		"title" TEXT,
 		"artist" TEXT,
-		"price" TEXT
+		"price" TEXT,
+		"class" TEXT,
+		"genre" TEXT,
+		"year" TEXT
 	  );` // SQL Statement for Create Table
 
 	log.Println("Create album table...")

@@ -51,7 +51,6 @@
    -->
   <script>
     albumTable = document.querySelector("table")
-    console.log("working??")
     /*
     Use the browsers `fetch` API to make a GET call to /bird
     We expect the response to be a JSON list of birds, of the
@@ -68,9 +67,6 @@
       .then(albumList => {
         //Once we fetch the list, we iterate over it
 
-        console.log(albumList)
-        artist = document.getElementById("2")
-        console.log(artist)
         albumList.forEach(album => {
           // Create the table row
           row = document.createElement("tr")
