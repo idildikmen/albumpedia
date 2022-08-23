@@ -3,11 +3,37 @@
 package main
 
 import (
+	"database/sql"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
+
+func init() {
+	var albums Albums
+
+	file, err := os.Create("sqlite-database-album-test.db")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	file.Close()
+
+	sqliteDatabase, _ := sql.Open("sqlite3", "./sqlite-database-album-test.db")
+	createTable(sqliteDatabase)
+
+	for i := 0; i < len(albums.Albums); i++ {
+		album := albums.Albums[i]
+		_, err1 := sqliteDatabase.Exec("INSERT INTO albums(title, artist, class, genre, year) VALUES ($1,$2,$3,$4,$5)", album.Title, album.Artist,
+			album.Class, album.Genre, album.Year)
+		_ = err1
+	}
+
+	InitStore(&dbStore{db: sqliteDatabase})
+
+}
 
 func TestRouter(t *testing.T) {
 	// Instantiate the router using the constructor function that
@@ -42,7 +68,7 @@ func TestRouter(t *testing.T) {
 	}
 	// convert the bytes to a string
 	respString := string(b)
-	expected := "Hey it's Idil"
+	expected := "Hey it's Idil!"
 
 	// We want our response to match the one defined in our handler.
 	// If it does happen to be "Hello world!", then it confirms, that the

@@ -28,6 +28,7 @@ func getAlbumHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// If all goes well, write the JSON list of birds to the response
+	w.WriteHeader(http.StatusOK)
 	w.Write(albumListBytes)
 }
 

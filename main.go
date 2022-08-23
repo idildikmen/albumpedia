@@ -99,7 +99,6 @@ func main() {
 	InitStore(&dbStore{db: sqliteDatabase})
 
 	r := newRouter()
-	log.Println("comes here")
 	fmt.Println("Serving on port 8080")
 	http.ListenAndServe(":8080", r)
 }
@@ -115,15 +114,15 @@ func createTable(db *sql.DB) {
 		"year" TEXT
 	  );` // SQL Statement for Create Table
 
-	log.Println("Create album table...")
+	//log.Println("Create album table...")
 	statement, err := db.Prepare(createAlbumsTableSQL) // Prepare SQL Statement
-	log.Println("now")
+	//log.Println("now")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
 	statement.Exec() // Execute SQL Statements
-	log.Println("album table created")
+	//log.Println("album table created")
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
